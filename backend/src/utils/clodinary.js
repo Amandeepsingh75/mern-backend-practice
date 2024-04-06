@@ -15,6 +15,7 @@ try {
         resource_type:'auto'
     })
     console.log(response,' cloudinary file response and ulpoded successfully' )
+    fs.unlinkSync(filePath)
     return response
 } catch (error) {
     fs.unlinkSync(filePath)

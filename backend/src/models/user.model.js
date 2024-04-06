@@ -41,7 +41,8 @@ watchHistory:[
 password:{
     type:String,
     required:[true, 'password is required']
-}, refreshToken:{
+},
+refreshToken:{
     type:String, 
 
 }
@@ -50,7 +51,7 @@ password:{
 // this funct is to change password into encrypted password
 userSchema.pre("save", async function(next){
 if(!this.isModified('password')){ return next() }
-  this.password = bcrypt.hash(this.password , 10)
+  this.password =await bcrypt.hash(this.password , 10)
   next()
 })
 
