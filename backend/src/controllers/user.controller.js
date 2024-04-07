@@ -1,5 +1,6 @@
 import {User} from '../models/user.model.js'
 import {uploadOnCloud} from '../utils/clodinary.js'
+import jwt from 'jsonwebtoken'
 
 // to generate refresh and access token function
 const generateAccessAndRefreshToken= async(user_id)=>{
@@ -15,6 +16,8 @@ const generateAccessAndRefreshToken= async(user_id)=>{
             res.status(500).json({message:'Error while generating access and refresh token'})
         }
 }
+
+
 
 // register logic
 const userRegiter =async(req, res)=>{
@@ -82,19 +85,28 @@ const userLogin = async(req, res)=>{
 }
 }
 
-// user logout logic
 const userLogout= async(req, res)=>{
     try {
+        // const userAccessToken=req.cookies.accessToken|| req.headers('Authorization')?.replace('Bearer ', '')
+        // if(!userAccessToken) {return res.status(400).json({msg:"Can't access token from cookies or headers"})}
+        // const decodedToken = jwt.verify(userAccessToken, process.env.ACCESS_TOKEN_SECRET)
+        // const user= await User.findById(decodedToken?._id).select('-password -refreshToken')
+        // if(!user){return res.status(400).json({msg:'User does not exist'})}
+        // req.user= user
+
        await User.findByIdAndUpdate(req.user?._id,{
             set:{
                 refreshToken:undefined
             }
         },{new:true})
+
         const optionsforCookies={
             httpOnly:true,
             secure:true
         } 
+
         return res.status(200).clearCookie('accessToken',optionsforCookies).clearCookie('refreshToken', optionsforCookies).json({data:{},msg:'User logout successfull'})
+
     } catch (error) {
         console.error(error);
         res.status(401).json('User logout failed ')
