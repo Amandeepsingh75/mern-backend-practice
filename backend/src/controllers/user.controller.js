@@ -138,6 +138,7 @@ const refreshAccessToken = async(req, res)=>{
     }
 }
 
+// change password logic
 const changePassword= async(req, res)=>{
     const {oldPassword , newPassword}= req.body
     const user =await User.findById(req.user?._id)
@@ -149,10 +150,12 @@ const changePassword= async(req, res)=>{
     return res.status(200).json({message : 'Your password is changed'})
 }
 
+// get login user data
 const getLoginUser= async(req, res)=>{
     return res.status(200).json({userData :req.user})
 }
 
+// update login user data logic 
 const updateData = async(req, res)=>{
     const {username , fullname} = req.body
     if(!fullname && !username){
