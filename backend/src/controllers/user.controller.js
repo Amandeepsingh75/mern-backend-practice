@@ -16,8 +16,11 @@ const generateAccessAndRefreshToken= async(user_id)=>{
             res.status(500).json({message:'Error while generating access and refresh token'})
         }
 }
-
-
+// options for cookies
+const optionsforCookies={
+    httpOnly:true,
+    secure:true
+} 
 
 // register logic
 const userRegiter =async(req, res)=>{
@@ -30,7 +33,7 @@ const userRegiter =async(req, res)=>{
     $or:[{email}, {username}]
     })
     if(userExist){
-        res.status(409).json('User already exist')
+      return res.status(409).json('User already exist')
     }
     const avatarFilePath =await req.files?.avatar[0]?.path
     // const coverFilePath =await req.files?.coverImgae[0]?.path
@@ -73,10 +76,10 @@ const userLogin = async(req, res)=>{
     if(!isPasswordValid){ return res.status(400).json('Invalid credentials pass')};
     const {accessToken, refreshToken}= await generateAccessAndRefreshToken(user._id)
     const getLoginUserData =await User.findById(user._id).select('-password -refreshToken')
-    const optionsforCookies={
-        httpOnly:true,
-        secure:true
-    }
+    // const optionsforCookies={
+    //     httpOnly:true,
+    //     secure:true
+    // }
     return res.status(200).cookie('accessToken', accessToken, optionsforCookies).cookie('refreshToken', refreshToken, optionsforCookies).json({message:'User Login Successfull',data: getLoginUserData})
 
 } catch (error) {
@@ -85,6 +88,7 @@ const userLogin = async(req, res)=>{
 }
 }
 
+// logout user logic
 const userLogout= async(req, res)=>{
     try {
         // const userAccessToken=req.cookies.accessToken|| req.headers('Authorization')?.replace('Bearer ', '')
@@ -100,10 +104,10 @@ const userLogout= async(req, res)=>{
             }
         },{new:true})
 
-        const optionsforCookies={
-            httpOnly:true,
-            secure:true
-        } 
+        // const optionsforCookies={
+        //     httpOnly:true,
+        //     secure:true
+        // } 
 
         return res.status(200).clearCookie('accessToken',optionsforCookies).clearCookie('refreshToken', optionsforCookies).json({data:{},msg:'User logout successfull'})
 
@@ -112,4 +116,31 @@ const userLogout= async(req, res)=>{
         res.status(401).json('User logout failed ')
     }
 }
-export {userRegiter , userLogin, userLogout}
+
+//refresh access token . check with refresh token
+const refreshAccessToken = async(req, res)=>{
+    try {
+       const getRefreshToken= req.cookies.refreshToken || req.body.refreshToken
+       if(!getRefreshToken) return res.status(400).json('there is no token . first login')
+       const decodedRefreshToken = jwt.verify(getRefreshToken, process.env.REFRESH_TOKEN_SECRET)
+        const user =await User.findById(decodedRefreshToken?._id)
+        if(getRefreshToken !== user.refreshToken){
+            return res.status(401).json('Wrong token or token expires or sed')
+        }
+        // const options={
+        //     httpOnly:true,
+        //     secure:true
+        // }
+        const {accessToken, refreshToken}= await generateAccessAndRefreshToken(user._id)
+        return res.status(200).cookie('accessToken', accessToken , optionsforCookies).cookie('refreshToken',refreshToken,optionsforCookies).json({message:'access token is refreshed',data:accessToken,refreshToken })
+    } catch (error) {
+        console.error(error);
+        res.status(400).json('refresh access token failed ')
+    }
+}
+
+const changePassword= async(req, res)=>{
+    console.log(req)
+}
+
+export {userRegiter , userLogin, userLogout, refreshAccessToken , changePassword}

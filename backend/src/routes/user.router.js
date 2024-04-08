@@ -1,5 +1,5 @@
 import express, {Router} from 'express'
-import {userRegiter, userLogin,userLogout} from '../controllers/user.controller.js'
+import {userRegiter, userLogin,userLogout, refreshAccessToken, changePassword} from '../controllers/user.controller.js'
 import {upload} from '../middlewares/multer.middleware.js'
 import CheckUserLoginOrNot from '../middlewares/authJwtCheck.middleware.js'
 const router = Router() 
@@ -12,5 +12,7 @@ router.route('/register').post(upload.fields([
 //login router
 router.route('/login').post(userLogin)
 router.route('/logout').post(CheckUserLoginOrNot,userLogout)
+router.route('/refreshAccessToken').post(refreshAccessToken)
+router.route('/changePassword').post(CheckUserLoginOrNot, changePassword)
 
 export {router}
