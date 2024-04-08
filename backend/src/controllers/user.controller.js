@@ -65,7 +65,6 @@ const userLogin = async(req, res)=>{
     try {
     const {email, username, password} = req.body
     if(!email && !username){
-        console.log(email, username)
         return res.status(400).json('Invalid credentials')
     }
     const user= await User.findOne({$or:[{username}, {email}]})
@@ -154,7 +153,17 @@ const getLoginUser= async(req, res)=>{
     return res.status(200).json({userData :req.user})
 }
 
-// const updateData = async(req, res)=>{
-
-// }
-export {userRegiter , userLogin, userLogout, refreshAccessToken , changePassword, getLoginUser}
+const updateData = async(req, res)=>{
+    const {username , fullname} = req.body
+    if(!fullname && !username){
+        return res.status(400).json("it can't be empty")
+    }
+    const user =await User.findByIdAndUpdate(req.user?._id,{
+        $set:{
+            fullname,
+            username
+        }
+    }, {new:true})
+        return res.status(200).json({data:user, msg:'data is updated'})
+}
+export {userRegiter , userLogin, userLogout, refreshAccessToken , changePassword, getLoginUser , updateData}
