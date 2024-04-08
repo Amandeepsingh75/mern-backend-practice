@@ -99,8 +99,8 @@ const userLogout= async(req, res)=>{
         // req.user= user
 
        await User.findByIdAndUpdate(req.user?._id,{
-            set:{
-                refreshToken:undefined
+            $unset:{
+                refreshToken:1
             }
         },{new:true})
 
@@ -140,7 +140,21 @@ const refreshAccessToken = async(req, res)=>{
 }
 
 const changePassword= async(req, res)=>{
-    console.log(req)
+    const {oldPassword , newPassword}= req.body
+    const user =await User.findById(req.user?._id)
+    if(!user) return res.status(400).json('something went wrong')
+    const checkPassword =await user.isPassworMatching(oldPassword)
+    if(!checkPassword) return res.status(400).json('Old password is incorrect')
+    user.password = newPassword
+    await user.save({validateBeforeSave:false})
+    return res.status(200).json({message : 'Your password is changed'})
 }
 
-export {userRegiter , userLogin, userLogout, refreshAccessToken , changePassword}
+const getLoginUser= async(req, res)=>{
+    return res.status(200).json({userData :req.user})
+}
+
+// const updateData = async(req, res)=>{
+
+// }
+export {userRegiter , userLogin, userLogout, refreshAccessToken , changePassword, getLoginUser}
