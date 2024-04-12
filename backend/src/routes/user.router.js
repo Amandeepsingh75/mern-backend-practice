@@ -15,6 +15,6 @@ router.route('/logout').post(CheckUserLoginOrNot,userLogout)
 router.route('/refreshAccessToken').post(refreshAccessToken)
 router.route('/change-password').post(CheckUserLoginOrNot, changePassword)
 router.route('/getUser').get(CheckUserLoginOrNot, getLoginUser)
-router.route('/update-data').post(CheckUserLoginOrNot, updateData)
+router.route('/update-data').patch(CheckUserLoginOrNot, updateData)
 
 export {router}

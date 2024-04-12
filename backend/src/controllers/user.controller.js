@@ -166,7 +166,7 @@ const updateData = async(req, res)=>{
             fullname,
             username
         }
-    }, {new:true})
-        return res.status(200).json({data:user, msg:'data is updated'})
+    }, {new:true}).select('-password')
+        return res.status(200).json({ msg:'data is updated',data:user})
 }
 export {userRegiter , userLogin, userLogout, refreshAccessToken , changePassword, getLoginUser , updateData}
